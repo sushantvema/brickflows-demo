@@ -1,4 +1,4 @@
 project_roots:
   demo:
-    root_yaml_rel_path: projects/demo/
+    root_yaml_rel_path: projects/demo
 version: v1
