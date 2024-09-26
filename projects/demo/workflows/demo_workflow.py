@@ -1,7 +1,20 @@
 from datetime import timedelta
-from brickflow import (Workflow, Cluster, WorkflowPermissions, User, TaskType
-    TaskSettings, EmailNotifications, PypiTaskLibrary, MavenTaskLibrary, JobsParameters, ctx)
-from brickflow_plugins import BashOperator
+from brickflow import (
+    Workflow, 
+    Cluster, 
+    WorkflowPermissions, 
+    User, 
+    TaskType,
+    TaskSettings, 
+    # EmailNotifications, 
+    PypiTaskLibrary, 
+    # MavenTaskLibrary, 
+    # JobsParameters, 
+    ctx,
+    BrickflowTriggerRule
+)
+
+# from brickflow_plugins import BashOperator
 
 DEMO_EMAIL = "svema@influential.co"
 
@@ -13,15 +26,16 @@ wf = Workflow(
     schedule_quartz_expression="0 0/20 0 ? * * *",  
     timezone="UTC",  
     # schedule_pause_status="PAUSED",  
-    default_task_settings=TaskSettings(  
-            email_notifications=EmailNotifications(
-            on_start=[DEMO_EMAIL],
-            on_success=[DEMO_EMAIL],
-            on_failure=[DEMO_EMAIL],
-            on_duration_warning_threshold_exceeded=[DEMO_EMAIL]
-         ),
-         timeout_seconds=timedelta(hours=2).seconds
-    ),
+    # TODO: Figure out the new API for this object
+    # default_task_settings=TaskSettings(  
+    #         email_notifications=EmailNotifications(
+    #         on_start=[DEMO_EMAIL],
+    #         on_success=[DEMO_EMAIL],
+    #         on_failure=[DEMO_EMAIL],
+    #         on_duration_warning_threshold_exceeded=[DEMO_EMAIL]
+    #      ),
+    #      timeout_seconds=timedelta(hours=2).seconds
+    #),
     # libraries=[  
     #     PypiTaskLibrary(package="requests"),
     #     MavenTaskLibrary(coordinates="com.cronutils:cron-utils:9.2.0"),
@@ -30,7 +44,7 @@ wf = Workflow(
     #     "product_id": "brickflow_demo",
     #     "slack_channel": "nike-sole-brickflow-support"
     # },
-    max_concurrent_runs=1,  
+    max_concurrent_runs=1,
     # permissions=WorkflowPermissions(  
     #     can_manage_run=[User(DEMO_EMAIL)],
     #     can_view=[User(DEMO_EMAIL)],
@@ -60,10 +74,10 @@ def demo_start_task(*, test="test"):
 def demo_dependent_task_1():
     return "It's-a me, mario."
 
-@wf.task
-def bash_task(depends_on=demo_dependent_task_1):
-    return BashOperator(task_id=bash_task.__name__, 
-                        bash_command="ls -ltr")
+# @wf.task
+# def bash_task(depends_on=demo_dependent_task_1):
+#     return BashOperator(task_id=bash_task.__name__, 
+#                         bash_command="ls -ltr")
 
 @wf.task(trigger_rule=BrickflowTriggerRule.ALL_SUCCESS)
 def all_success_task():
