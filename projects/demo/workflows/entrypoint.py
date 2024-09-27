@@ -14,6 +14,7 @@ def main() -> None:
             MavenTaskLibrary(coordinates="com.cronutils:cron-utils:9.2.0"),
             # PypiTaskLibrary(package="spark-expectations==0.5.0"), # Uncomment if spark-expectations is needed
         ],
+        enable_plugins=True
     ) as f:
         f.add_pkg(workflows)
 
