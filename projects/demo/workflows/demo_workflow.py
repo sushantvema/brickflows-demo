@@ -11,7 +11,8 @@ from brickflow import (
     # MavenTaskLibrary, 
     # JobsParameters, 
     ctx,
-    BrickflowTriggerRule
+    BrickflowTriggerRule, 
+    SparkPythonTask
 )
 
 # from brickflow_plugins import BashOperator
@@ -71,7 +72,20 @@ def demo_start_task(*, test="test"):
     print(f"This is a configuration variables called {test}")
     return "hello world"
 
-@wf.task(depends_on=demo_start_task)
+@wf.task(depends_on=demo_start_task, task_type=TaskType.SPARK_PYTHON_TASK, libraries=[
+            PypiTaskLibrary(
+                package="pytz"
+            )
+        ]
+) 
+def datetime_task():
+    return SparkPythonTask(
+        python_file="./scripts/get_current_datetime.py",
+        source="GIT",
+        # parameters=["--param1", "World!"],
+    )
+
+@wf.task(depends_on=datetime_task)
 def test_table_ingest():
     # ctx.spark.sql(
     #     f"""

@@ -5,7 +5,7 @@
   - [x] Trigger rules, and tasks-conditional logic (included ALL_SUCCESS)
   - [x] cron scheduling
   - [] User permissions + notifications
-  - [] SQL tasks
+  - [X] SQL tasks
   - [] Custom cluster configuration in code for any task
   - [] If else, conditional logic
   - [] "Airflow operators"
