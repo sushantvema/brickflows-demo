@@ -25,7 +25,7 @@ wf = Workflow(
     # Optional parameters below
     schedule_quartz_expression="0 0/20 0 ? * * *",  
     timezone="UTC",  
-    # schedule_pause_status="PAUSED",  
+    schedule_pause_status="PAUSED",  
     # TODO: Figure out the new API for this object
     # default_task_settings=TaskSettings(  
     #         email_notifications=EmailNotifications(
@@ -40,22 +40,23 @@ wf = Workflow(
     #     PypiTaskLibrary(package="requests"),
     #     MavenTaskLibrary(coordinates="com.cronutils:cron-utils:9.2.0"),
     # ],
-    # tags={  
-    #     "product_id": "brickflow_demo",
-    #     "slack_channel": "nike-sole-brickflow-support"
-    # },
+    tags={  
+        "product_id": "brickflow_demo",
+        "slack_channel": "as-assisted-search"
+    },
     max_concurrent_runs=1,
     # permissions=WorkflowPermissions(  
     #     can_manage_run=[User(DEMO_EMAIL)],
     #     can_view=[User(DEMO_EMAIL)],
     #     can_manage=[User(DEMO_EMAIL)],
     # ),
-    # prefix="feature-demo",  
-    # suffix="_dev1",  
-    # common_task_parameters={  
-    #     "catalog": "development",
-    #     "database": "your_database"
-    # },
+    prefix="feature-",  
+    suffix="_dev1",  
+    common_task_parameters={  
+        "catalog": "dev",
+        "schema": "bronze_mariadb_social_hoarder"
+    },
+    # TODO: Broken health field
     # health = { 
     #     "metric": "RUN_DURATION_SECONDS",
     #     "op": "GREATER_THAN",
@@ -70,16 +71,42 @@ def demo_start_task(*, test="test"):
     print(f"This is a configuration variables called {test}")
     return "hello world"
 
-@wf.task(depends_on=demo_start_task)  
-def demo_dependent_task_1():
-    return "It's-a me, mario."
+@wf.task(depends_on=demo_start_task)
+def test_table_ingest():
+    # ctx.spark.sql(
+    #     f"""
+    #     CREATE TABLE IF NOT EXISTS 
+    #     {ctx.dbutils_widget_get_or_else(key="catalog", debug="development")}.\
+    #     {ctx.dbutils_widget_get_or_else(key="database", debug="dummy_database")}.\
+    #     {ctx.dbutils_widget_get_or_else(key="brickflow_env", debug="local")}_lending_data_ingest
+    #     USING DELTA -- this is default just for explicit purpose
+    #     SELECT * FROM parquet.`dbfs:/databricks-datasets/samples/lending_club/parquet/`
+    # """
+    
+    # TODO: ctx.dbutils_widget_get_or_else is a deprecated function?
+    # sdf = ctx.spark.sql(
+    #    f"""
+    #    SELECT * FROM 
+    #         {ctx.dbutils_widget_get_or_else(key="catalog", debug="debug")}. \
+    #         {ctx.dbutils_widget_get_or_else(key="schema", debug="debug")}. \
+    #         cippus_text
+    #    USING DELTA -- this is default just for explicit purposes
+    #    LIMIT 10
+    #    """
+    # )
+    sdf = ctx.spark.sql(
+       f"""
+       SELECT * FROM 
+            {ctx.dbutils.widgets.get("catalog")}. \
+            {ctx.dbutils.widgets.get("schema")}. \
+            cippus_text
+       LIMIT 10
+       """
+    )
+    print(sdf.count()) 
+    return sdf.count()
 
-# @wf.task
-# def bash_task(depends_on=demo_dependent_task_1):
-#     return BashOperator(task_id=bash_task.__name__, 
-#                         bash_command="ls -ltr")
-
-@wf.task(trigger_rule=BrickflowTriggerRule.ALL_SUCCESS)
+@wf.task(depends_on=test_table_ingest, trigger_rule=BrickflowTriggerRule.ALL_SUCCESS)
 def all_success_task():
     print("Everything went well!")
     pass
