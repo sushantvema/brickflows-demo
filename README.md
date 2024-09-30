@@ -4,14 +4,14 @@
   - [x] Dependent tasks
   - [x] Trigger rules, and tasks-conditional logic (included ALL_SUCCESS)
   - [x] cron scheduling
-  - [] User permissions + notifications
+  - [x] User permissions + notifications
   - [X] SQL tasks
   - [] Custom cluster configuration in code for any task
   - [] If else, conditional logic
   - [] "Airflow operators"
   - [] notebook task -> can run a specific notebook, similar to dbutils.run() API
   - [] Run Job Task -> run a toy job with specified parameters
-  - [] Python Task
+  - [x] Python Task
   - [] inbuilt task parameters (useful for logging)
   - [] custom prefix and suffix -> synergize with naming conventions
   - [] workflow dependency sensor -> poll and wait for another deployed workflow to finish

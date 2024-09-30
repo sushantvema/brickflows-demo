@@ -46,13 +46,12 @@ wf = Workflow(
         "slack_channel": "as-assisted-search"
     },
     max_concurrent_runs=1,
-    # permissions=WorkflowPermissions(  
-    #     can_manage_run=[User(DEMO_EMAIL)],
-    #     can_view=[User(DEMO_EMAIL)],
-    #     can_manage=[User(DEMO_EMAIL)],
-    # ),
-    prefix="feature-",  
-    suffix="_dev1",  
+    # TODO: Figure out Permissions documentation
+    permissions=WorkflowPermissions(  
+        can_view=[User("cmohammadian@influential.co"), User("sjadhav@influential.co")],
+    ),
+    prefix="featurebranch-",  
+    suffix="_devenvironment",  
     common_task_parameters={  
         "catalog": "dev",
         "schema": "bronze_mariadb_social_hoarder"
@@ -80,7 +79,7 @@ def demo_start_task(*, test="test"):
 ) 
 def datetime_task():
     return SparkPythonTask(
-        python_file="./scripts/get_current_datetime.py",
+        python_file="____scripts/get_current_datetime.py",
         source="GIT",
         # parameters=["--param1", "World!"],
     )
